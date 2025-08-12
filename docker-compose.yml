@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile-live
+    image: signlang-live-ui:latest
+    privileged: true
+    volumes:
+      - /dev:/dev
+      - /run/udev:/run/udev:ro
+      - ./models:/app/models      # for your TFLite later
+      - ./videos:/app/videos      # if you add recording
+    ports:
+      - "5000:5000"
+    environment:
+      - TF_CPP_MIN_LOG_LEVEL=2
+      - GLOG_minloglevel=2
+      # keep if you used Option A for picamera2 visibility:
+      - PYTHONPATH=/usr/lib/python3/dist-packages:${PYTHONPATH}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5000/text || exit 1"]
+      interval: 20s
+      timeout: 3s
+      retries: 5
+      start_period: 15s

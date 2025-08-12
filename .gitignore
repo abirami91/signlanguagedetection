@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Jupyter / editors / OS
+.ipynb_checkpoints/
+.vscode/
+.DS_Store
+
+# Local data & outputs
+videos/
+frames/
+out_frames/
+data/raw/
+data/processed/
+
+# Models (keep small JSON; ignore binaries)
+models/*.tflite
+models/current.tflite

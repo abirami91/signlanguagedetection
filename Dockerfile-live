@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+# Add Raspberry Pi repo so we can apt-get Picamera2
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl gnupg && \
+    echo "deb http://archive.raspberrypi.com/debian bookworm main" \
+      > /etc/apt/sources.list.d/raspi.list && \
+    curl -fsSL https://archive.raspberrypi.com/debian/raspberrypi.gpg.key \
+      | gpg --dearmor -o /etc/apt/trusted.gpg.d/raspberrypi.gpg
+
+# System deps: Picamera2, OpenCV (for JPEG encode), ffmpeg (for future recording)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-picamera2 python3-opencv ffmpeg libgl1 libgtk2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+ENV TF_CPP_MIN_LOG_LEVEL=2 GLOG_minloglevel=2
+ENV PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH
+
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ src/
+
+# Start the Flask live UI
+CMD ["python3", "-u", "src/app/live_ui.py"]
